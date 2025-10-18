@@ -16,7 +16,12 @@ sys.path.insert(0, str(app_dir))
 os.environ.setdefault('FLASK_ENV', 'production')
 
 # Import the Flask app
-from app import app as application
+from app import app as application, db
+
+# Initialize database tables for production
+with application.app_context():
+    db.create_all()
+    print("[INIT] Database initialized for production!")
 
 # For Gunicorn compatibility
 app = application
