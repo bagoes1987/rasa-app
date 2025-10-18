@@ -176,13 +176,22 @@ def login():
         email = request.form.get('email')
         password = request.form.get('password')
         
+        print(f"[DEBUG] Login attempt: email={email}")
+        
         user = User.query.filter_by(email=email).first()
         
-        if user and user.check_password(password):
-            login_user(user)
-            flash(f'Selamat datang, {user.nama_lengkap}! 👋', 'success')
-            return redirect(url_for('dashboard'))
+        if user:
+            print(f"[DEBUG] User found: {user.nama_lengkap}")
+            print(f"[DEBUG] Password check: {user.check_password(password)}")
+            if user.check_password(password):
+                login_user(user)
+                flash(f'Selamat datang, {user.nama_lengkap}! 👋', 'success')
+                return redirect(url_for('dashboard'))
+            else:
+                print(f"[DEBUG] Password incorrect for user: {email}")
+                flash('Email atau password salah!', 'error')
         else:
+            print(f"[DEBUG] User not found: {email}")
             flash('Email atau password salah!', 'error')
     
     return render_template('login.html')
