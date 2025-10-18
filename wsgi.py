@@ -15,10 +15,22 @@ sys.path.insert(0, str(app_dir))
 # Ensure we're in production mode
 os.environ.setdefault('FLASK_ENV', 'production')
 
-# Import the Flask app
-from app import app as application, db
+print("[WSGI] Starting WSGI initialization...")
+print(f"[WSGI] App directory: {app_dir}")
+print(f"[WSGI] Python path: {sys.path}")
+
+try:
+    # Import the Flask app
+    from app import app as application, db
+    print("[WSGI] Flask app imported successfully!")
+except Exception as e:
+    print(f"[ERROR] Failed to import Flask app: {e}")
+    import traceback
+    traceback.print_exc()
+    sys.exit(1)
 
 # Initialize database tables for production
+print("[WSGI] Initializing database...")
 with application.app_context():
     try:
         db.create_all()
@@ -45,6 +57,8 @@ with application.app_context():
         print(f"[ERROR] Database initialization failed: {e}")
         import traceback
         traceback.print_exc()
+
+print("[WSGI] WSGI initialization completed successfully!")
 
 # For Gunicorn compatibility
 app = application
