@@ -14,7 +14,12 @@ class Config:
     
     # Database configuration - flexible for local and production
     # Priority: Environment variable > Default instance path
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_PATH') or f'sqlite:///{BASE_DIR}/instance/rasa.db'
+    if os.environ.get('FLASK_ENV') == 'production':
+        # For Railway/production: use /tmp directory
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_PATH') or 'sqlite:////tmp/rasa.db'
+    else:
+        # For local development: use instance directory
+        SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_PATH') or f'sqlite:///{BASE_DIR}/instance/rasa.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # SQLite optimization for production
