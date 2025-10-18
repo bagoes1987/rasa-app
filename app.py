@@ -1234,6 +1234,9 @@ def not_found(error):
 @app.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
+    import traceback
+    print(f"[ERROR 500] {error}")
+    print(f"[ERROR 500] Traceback: {traceback.format_exc()}")
     return render_template('500.html'), 500
 
 
