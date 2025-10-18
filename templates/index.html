@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}RASA - Welcome{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-4 sm:py-8">
+    <div class="max-w-5xl mx-auto text-center px-4 sm:px-6">
+        <!-- Hero Section -->
+        <div class="mb-8 sm:mb-16 animate-fade-in">
+            <!-- Logo -->
+            <div class="mb-6 sm:mb-8 flex justify-center">
+                <img src="{{ url_for('static', filename='logo-rasa2.png') }}" 
+                     alt="RASA Logo" 
+                     class="h-24 sm:h-32 md:h-40 lg:h-48 w-auto">
+            </div>
+            
+            <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6">
+                <span class="bg-gradient-to-r from-purple-600 via-blue-600 to-pink-600 bg-clip-text text-transparent">
+                    Halo, Selamat Datang! 👋
+                </span>
+            </h1>
+            <h2 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-3">
+                Kenalan yuk sama <span class="text-purple-600">RASA</span>
+            </h2>
+            <p class="text-base sm:text-lg md:text-xl text-gray-600 max-w-2xl mx-auto mb-4 sm:mb-6 font-medium">
+                Refleksi dan Asistensi Sosial Emosional Siswa
+            </p>
+            <p class="text-sm sm:text-base md:text-lg text-gray-700 max-w-3xl mx-auto leading-relaxed">
+                RASA adalah teman virtual kamu untuk eksplorasi jati diri, 
+                mengenal emosi, menemukan gaya belajar terbaik, 
+                dan menentukan masa depan yang cerah! ✨
+            </p>
+        </div>
+        
+        <!-- Features -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-16">
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl hover:shadow-2xl transition-all hover:scale-105 h-full">
+                <div class="text-3xl sm:text-4xl lg:text-5xl mb-3 sm:mb-4">🌟</div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800 mb-2 sm:mb-3">Kenali Diri</h3>
+                <p class="text-xs sm:text-sm lg:text-base text-gray-600 leading-relaxed">Eksplorasi nilai, motivasi, dan passion kamu yang sesungguhnya</p>
+            </div>
+            
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl hover:shadow-2xl transition-all hover:scale-105 h-full">
+                <div class="text-3xl sm:text-4xl lg:text-5xl mb-3 sm:mb-4">💝</div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800 mb-2 sm:mb-3">Kelola Emosi</h3>
+                <p class="text-xs sm:text-sm lg:text-base text-gray-600 leading-relaxed">Tingkatkan kecerdasan emosional dan hubungan sosial</p>
+            </div>
+            
+            <div class="bg-white/80 backdrop-blur-md rounded-2xl p-4 sm:p-6 lg:p-8 shadow-xl hover:shadow-2xl transition-all hover:scale-105 h-full sm:col-span-2 lg:col-span-1">
+                <div class="text-3xl sm:text-4xl lg:text-5xl mb-3 sm:mb-4">🎓</div>
+                <h3 class="text-base sm:text-lg lg:text-xl font-bold text-gray-800 mb-2 sm:mb-3">Rancang Masa Depan</h3>
+                <p class="text-xs sm:text-sm lg:text-base text-gray-600 leading-relaxed">Dapatkan rekomendasi jurusan dan program studi yang tepat</p>
+            </div>
+        </div>
+        
+        <!-- CTA Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-8 sm:mb-12">
+            <a href="{{ url_for('login') }}" class="btn-primary px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold rounded-full hover:shadow-2xl transform hover:scale-105 transition-all text-sm sm:text-base lg:text-lg w-full sm:w-auto">
+                <i class="fas fa-sign-in-alt mr-2"></i>Login
+            </a>
+            <a href="{{ url_for('register') }}" class="btn-secondary px-6 sm:px-8 py-3 sm:py-4 bg-white text-purple-600 font-bold rounded-full border-2 border-purple-600 hover:bg-purple-50 transform hover:scale-105 transition-all text-sm sm:text-base lg:text-lg w-full sm:w-auto">
+                <i class="fas fa-user-plus mr-2"></i>Daftar Sekarang
+            </a>
+        </div>
+        
+        <!-- Info -->
+        <div class="text-sm text-gray-500">
+            <p>🏫 SMA Negeri 1 Belitang</p>
+            <div class="mt-2">
+                <a href="{{ url_for('admin_login') }}" class="text-xs text-purple-600 hover:text-purple-500 transition-colors">
+                    <i class="fas fa-cog mr-1"></i>Admin Login
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.8s ease-out;
+}
+
+/* Improved responsive design */
+@media (max-width: 768px) {
+    .min-h-screen {
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .text-4xl {
+        font-size: 2.5rem;
+    }
+    
+    .text-2xl {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .text-4xl {
+        font-size: 2rem;
+    }
+    
+    .text-2xl {
+        font-size: 1.5rem;
+    }
+    
+    .grid-cols-1 {
+        gap: 1rem;
+    }
+}
+
+/* Ensure equal height cards */
+.grid > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.grid > div > p {
+    flex-grow: 1;
+}
+</style>
+{% endblock %}
+

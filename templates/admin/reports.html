@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Laporan & Analisis - Admin RASA{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-900">Laporan & Analisis</h1>
+                <p class="text-gray-600 mt-1">Statistik dan analisis penggunaan sistem RASA</p>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{{ url_for('admin_export_students') }}" class="btn-secondary px-4 py-2 bg-white text-purple-600 font-medium rounded-lg border-2 border-purple-600 hover:bg-purple-50 transition-all">
+                    <i class="fas fa-download mr-2"></i>Export Data
+                </a>
+                <a href="{{ url_for('admin_dashboard') }}" class="btn-primary px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium rounded-lg hover:shadow-lg transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i>Kembali
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overview Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100">
+                    <i class="fas fa-users text-2xl text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Siswa Terdaftar</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_students }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100">
+                    <i class="fas fa-comments text-2xl text-green-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Sesi Chat</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ total_sessions }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100">
+                    <i class="fas fa-check-circle text-2xl text-purple-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Sesi Selesai</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ completed_sessions }}</p>
+                    <p class="text-sm text-gray-500">
+                        {% if total_sessions > 0 %}
+                        {{ ((completed_sessions / total_sessions) * 100)|round(1) }}% completion rate
+                        {% else %}
+                        0% completion rate
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity (30 Days) -->
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Aktivitas 30 Hari Terakhir</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="text-center p-4 bg-blue-50 rounded-lg">
+                <i class="fas fa-user-plus text-3xl text-blue-600 mb-2"></i>
+                <p class="text-2xl font-bold text-gray-900">{{ recent_activity.new_students }}</p>
+                <p class="text-sm text-gray-600">Siswa Baru</p>
+            </div>
+            <div class="text-center p-4 bg-green-50 rounded-lg">
+                <i class="fas fa-comments text-3xl text-green-600 mb-2"></i>
+                <p class="text-2xl font-bold text-gray-900">{{ recent_activity.new_sessions }}</p>
+                <p class="text-sm text-gray-600">Sesi Baru</p>
+            </div>
+            <div class="text-center p-4 bg-purple-50 rounded-lg">
+                <i class="fas fa-check-circle text-3xl text-purple-600 mb-2"></i>
+                <p class="text-2xl font-bold text-gray-900">{{ recent_activity.completed_sessions }}</p>
+                <p class="text-sm text-gray-600">Sesi Selesai</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Module Completion Rates -->
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Tingkat Penyelesaian Modul</h2>
+        <div class="space-y-4">
+            {% for module_type, stats in module_completion.items() %}
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="font-medium text-gray-900">{{ stats.name }}</h3>
+                    <span class="text-sm font-medium text-gray-600">{{ stats.completion_rate }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                    <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-500" 
+                         style="width: {{ stats.completion_rate }}%"></div>
+                </div>
+                <div class="flex justify-between text-sm text-gray-500">
+                    <span>{{ stats.completed_attempts }} dari {{ stats.total_attempts }} selesai</span>
+                    <span>{{ stats.total_attempts - stats.completed_attempts }} belum selesai</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Class-wise Statistics -->
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Statistik per Kelas</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {% for stat in class_stats %}
+            <div class="border border-gray-200 rounded-lg p-4">
+                <div class="text-center">
+                    <h3 class="text-lg font-bold text-gray-900 mb-2">Kelas {{ stat.kelas }}</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Siswa:</span>
+                            <span class="font-medium">{{ stat.total_students }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Total Sesi:</span>
+                            <span class="font-medium">{{ stat.total_sessions }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Selesai:</span>
+                            <span class="font-medium text-green-600">{{ stat.completed_sessions }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-sm text-gray-600">Completion Rate:</span>
+                            <span class="font-medium text-purple-600">{{ stat.completion_rate }}%</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 w-full bg-gray-200 rounded-full h-2">
+                        <div class="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full" 
+                             style="width: {{ stat.completion_rate }}%"></div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Usage Trends -->
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Tren Penggunaan</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <h3 class="font-medium text-gray-900 mb-2">Siswa Paling Aktif</h3>
+                <p class="text-sm text-gray-600">Berdasarkan jumlah sesi chat yang diselesaikan</p>
+                <div class="mt-3 space-y-2">
+                    {% set top_students = [] %}
+                    {% for student in students.items %}
+                        {% set completed_count = student.chat_sessions|selectattr('is_completed')|list|length %}
+                        {% if completed_count > 0 %}
+                            {% set _ = top_students.append({'name': student.nama_lengkap, 'count': completed_count, 'kelas': student.kelas}) %}
+                        {% endif %}
+                    {% endfor %}
+                    {% set top_students = top_students|sort(attribute='count', reverse=true) %}
+                    {% set top_students = top_students[:5] %}
+                    
+                    {% if top_students %}
+                        {% for student in top_students %}
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ student.name }}</p>
+                                <p class="text-xs text-gray-500">Kelas {{ student.kelas }}</p>
+                            </div>
+                            <span class="text-sm font-medium text-purple-600">{{ student.count }} sesi</span>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                    <p class="text-sm text-gray-500">Belum ada data</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="p-4 bg-gray-50 rounded-lg">
+                <h3 class="font-medium text-gray-900 mb-2">Modul Paling Populer</h3>
+                <p class="text-sm text-gray-600">Berdasarkan jumlah pengguna yang menyelesaikan</p>
+                <div class="mt-3 space-y-2">
+                    {% set popular_modules = [] %}
+                    {% for module_type, stats in module_completion.items() %}
+                        {% if stats.completed_attempts > 0 %}
+                            {% set _ = popular_modules.append({'name': stats.name, 'count': stats.completed_attempts}) %}
+                        {% endif %}
+                    {% endfor %}
+                    {% set popular_modules = popular_modules|sort(attribute='count', reverse=true) %}
+                    
+                    {% for module in popular_modules %}
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm font-medium text-gray-900">{{ module.name }}</span>
+                        <span class="text-sm font-medium text-purple-600">{{ module.count }} selesai</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+<!-- EQ Results -->
+<div class="space-y-6">
+    <div class="bg-gradient-to-r from-pink-100 to-purple-100 rounded-xl p-6 border-l-4 border-pink-600">
+        <h3 class="text-xl font-bold text-gray-800 mb-3">
+            <i class="fas fa-heart text-pink-600 mr-2"></i>
+            Ringkasan Kecerdasan Emosional
+        </h3>
+        <p class="text-gray-700 leading-relaxed">
+            {{ result_data.get('ringkasan_eq', 'Tidak tersedia') }}
+        </p>
+    </div>
+    
+    {% if 'level_eq' in result_data %}
+    <div class="text-center bg-purple-50 rounded-xl p-6">
+        <p class="text-sm text-gray-600 mb-2">Level EQ Kamu</p>
+        <p class="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            {{ result_data.level_eq }}
+        </p>
+    </div>
+    {% endif %}
+    
+    <!-- Skor EQ -->
+    {% if 'skor_eq' in result_data %}
+    <div class="bg-white rounded-xl p-6 border-2 border-purple-200">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-chart-bar text-purple-600 mr-2"></i>
+            Skor Detail EQ
+        </h3>
+        <div class="space-y-4">
+            {% for aspek, nilai in result_data.skor_eq.items() %}
+            <div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-700 font-medium">{{ aspek.replace('_', ' ').title() }}</span>
+                    <span class="text-purple-600 font-bold">{{ nilai }}/10</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-3 rounded-full transition-all" 
+                         style="width: {{ (nilai / 10 * 100) }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Kekuatan EQ -->
+    {% if 'kekuatan_eq' in result_data %}
+    <div class="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-thumbs-up text-green-600 mr-2"></i>
+            Kekuatan EQ Kamu
+        </h3>
+        <ul class="space-y-2">
+            {% for kekuatan in result_data.kekuatan_eq %}
+            <li class="flex items-start">
+                <span class="text-green-600 mr-2">✓</span>
+                <span class="text-gray-700">{{ kekuatan }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+    
+    <!-- Saran Peningkatan -->
+    <div class="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-lightbulb text-blue-600 mr-2"></i>
+            Saran Peningkatan EQ
+        </h3>
+        <ul class="space-y-3">
+            {% for saran in result_data.get('saran_peningkatan', []) %}
+            <li class="flex items-start">
+                <span class="text-blue-600 mr-2 text-xl">💡</span>
+                <span class="text-gray-700">{{ saran }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+

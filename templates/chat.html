@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module.name }} - RASA{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="flex flex-col h-screen">
+    <!-- Chat Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-blue-600 text-white py-4 px-6 shadow-lg">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center">
+                <a href="{{ url_for('modules') }}" class="mr-4 hover:bg-white/20 p-2 rounded-lg transition">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </a>
+                <div>
+                    <h2 class="text-2xl font-bold">{{ module.emoji }} {{ module.name }}</h2>
+                    <p class="text-purple-100 text-sm">Chat dengan RASA</p>
+                </div>
+            </div>
+            <button id="complete-btn" 
+                    class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg transition font-medium flex items-center hidden">
+                <i class="fas fa-check-circle mr-2"></i>
+                Selesai & Analisis
+            </button>
+        </div>
+    </div>
+    
+    <!-- Chat Messages Container -->
+    <div id="chat-container" class="flex-1 overflow-y-auto bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 p-4">
+        <div class="max-w-4xl mx-auto space-y-4" id="messages-container">
+            {% for message in messages %}
+            <div class="message-wrapper {% if message.role == 'user' %}user-message{% else %}assistant-message{% endif %}">
+                {% if message.role == 'assistant' %}
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                        R
+                    </div>
+                    <div class="flex-1 bg-white rounded-2xl rounded-tl-none shadow-lg p-4 max-w-3xl">
+                        <p class="text-gray-800 whitespace-pre-wrap">{{ message.content }}</p>
+                        <p class="text-xs text-gray-400 mt-2">{{ message.timestamp.strftime('%H:%M') }}</p>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex items-start space-x-3 justify-end">
+                    <div class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-2xl rounded-tr-none shadow-lg p-4 max-w-2xl">
+                        <p class="whitespace-pre-wrap">{{ message.content }}</p>
+                        <p class="text-xs text-purple-100 mt-2 text-right">{{ message.timestamp.strftime('%H:%M') }}</p>
+                    </div>
+                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                        {{ current_user.nama_lengkap[0].upper() }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+            
+            <!-- Typing Indicator (hidden by default) -->
+            <div id="typing-indicator" class="hidden">
+                <div class="flex items-start space-x-3">
+                    <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                        R
+                    </div>
+                    <div class="bg-white rounded-2xl rounded-tl-none shadow-lg p-4">
+                        <div class="flex space-x-2">
+                            <div class="w-3 h-3 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0s"></div>
+                            <div class="w-3 h-3 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            <div class="w-3 h-3 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.4s"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Input -->
+    <div class="bg-white border-t border-gray-200 p-4 shadow-lg">
+        <div class="max-w-4xl mx-auto">
+            <!-- Quick Action Buttons Container -->
+            <div id="quick-buttons" class="mb-4 hidden">
+                <div id="ready-buttons" class="flex justify-center space-x-4 mb-3 hidden">
+                    <button type="button" 
+                            onclick="handleQuickAction('tidak')"
+                            class="bg-gray-500 hover:bg-gray-600 text-white px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition font-medium flex items-center">
+                        <i class="fas fa-times-circle mr-2"></i>
+                        Tidak
+                    </button>
+                    <button type="button" 
+                            onclick="handleQuickAction('siap')"
+                            class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition font-medium flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Siap
+                    </button>
+                </div>
+                
+                <div id="answer-buttons" class="flex flex-col space-y-3 mb-3 hidden">
+                    <button type="button" 
+                            onclick="handleQuickAction('a')"
+                            class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition font-medium text-left w-full">
+                        <span class="font-bold">A.</span> <span id="option-a-text">Jarang beribadah</span>
+                    </button>
+                    <button type="button" 
+                            onclick="handleQuickAction('b')"
+                            class="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition font-medium text-left w-full">
+                        <span class="font-bold">B.</span> <span id="option-b-text">Kadang beribadah</span>
+                    </button>
+                    <button type="button" 
+                            onclick="handleQuickAction('c')"
+                            class="bg-pink-500 hover:bg-pink-600 text-white px-6 py-3 rounded-xl shadow-lg hover:shadow-xl transition font-medium text-left w-full">
+                        <span class="font-bold">C.</span> <span id="option-c-text">Selalu beribadah tepat waktu</span>
+                    </button>
+                </div>
+            </div>
+            
+            <form id="chat-form" class="flex space-x-3">
+                <input type="text" 
+                       id="message-input" 
+                       placeholder="Atau ketik pesan kamu di sini..." 
+                       class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-full focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
+                       autocomplete="off">
+                <button type="submit" 
+                        id="send-btn"
+                        class="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-full hover:shadow-xl transition font-medium flex items-center">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    Kirim
+                </button>
+            </form>
+            <p class="text-xs text-gray-500 mt-2 text-center">
+                <span id="input-hint">Klik tombol di atas atau ketik jawaban kamu 💜</span>
+            </p>
+        </div>
+    </div>
+</div>
+
+<!-- Complete Modal -->
+<div id="complete-modal" class="hidden fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 transform scale-95 transition-transform">
+        <div class="text-center mb-6">
+            <div class="text-5xl mb-4">🎉</div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2">Selesaikan Sesi?</h3>
+            <p class="text-gray-600">
+                RASA akan menganalisis percakapan kamu dan memberikan hasil yang lengkap!
+            </p>
+        </div>
+        <div class="flex space-x-3">
+            <button id="cancel-complete" 
+                    class="flex-1 bg-gray-200 text-gray-700 px-4 py-3 rounded-lg hover:bg-gray-300 transition font-medium">
+                Belum
+            </button>
+            <button id="confirm-complete" 
+                    class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-4 py-3 rounded-lg hover:shadow-xl transition font-medium">
+                Ya, Selesai!
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+const sessionId = {{ session.id }};
+const moduleType = '{{ module_type }}';
+const currentQuestion = {{ session.current_question or 0 }};
+const chatContainer = document.getElementById('chat-container');
+const messagesContainer = document.getElementById('messages-container');
+const chatForm = document.getElementById('chat-form');
+const messageInput = document.getElementById('message-input');
+const sendBtn = document.getElementById('send-btn');
+const typingIndicator = document.getElementById('typing-indicator');
+const completeBtn = document.getElementById('complete-btn');
+const completeModal = document.getElementById('complete-modal');
+const cancelComplete = document.getElementById('cancel-complete');
+const confirmComplete = document.getElementById('confirm-complete');
+const quickButtons = document.getElementById('quick-buttons');
+const readyButtons = document.getElementById('ready-buttons');
+const answerButtons = document.getElementById('answer-buttons');
+const inputHint = document.getElementById('input-hint');
+
+// Auto-scroll to bottom
+function scrollToBottom() {
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Show appropriate buttons based on context
+function showAppropriateButtons() {
+    const messages = messagesContainer.querySelectorAll('.message-wrapper');
+    if (messages.length === 0) return;
+    
+    const lastMessage = messages[messages.length - 1];
+    const isAssistant = lastMessage.classList.contains('assistant-message');
+    
+    if (!isAssistant) {
+        quickButtons.classList.add('hidden');
+        return;
+    }
+    
+    const lastContent = lastMessage.textContent.toLowerCase();
+    
+    // Check if it's intro message (asking if ready)
+    if (lastContent.includes('siap mulai') || lastContent.includes('siap?')) {
+        quickButtons.classList.remove('hidden');
+        readyButtons.classList.remove('hidden');
+        answerButtons.classList.add('hidden');
+        inputHint.textContent = 'Klik "Siap" untuk mulai atau "Tidak" untuk kembali 💜';
+    }
+    // Check if it's a question (contains question number like "1.", "2.", etc.)
+    else if (/\d+\./.test(lastContent)) {
+        quickButtons.classList.remove('hidden');
+        readyButtons.classList.add('hidden');
+        answerButtons.classList.remove('hidden');
+        inputHint.textContent = 'Klik tombol A/B/C atau ketik jawaban kamu 💜';
+        
+        // Update option texts based on current question
+        updateOptionTexts(lastMessage.textContent);
+    }
+    // Check if survey is complete
+    else if (lastContent.includes('terima kasih') && lastContent.includes('selesai')) {
+        quickButtons.classList.add('hidden');
+        completeBtn.classList.remove('hidden');
+        inputHint.textContent = 'Survey selesai! Klik "Selesai & Analisis" untuk melihat hasil 💜';
+    }
+    else {
+        quickButtons.classList.add('hidden');
+        completeBtn.classList.add('hidden');
+        inputHint.textContent = 'Ketik pesan kamu di sini 💜';
+    }
+}
+
+function updateOptionTexts(questionText) {
+    // Extract question number from text like "1. (Spiritual) Saya berusaha..."
+    const match = questionText.match(/(\d+)\./);
+    if (!match) return;
+    
+    const questionNumber = parseInt(match[1]);
+    
+    // Option texts for all 24 questions
+    const optionTexts = {
+        1: { a: "Jarang beribadah", b: "Kadang beribadah", c: "Selalu beribadah tepat waktu" },
+        2: { a: "Tidak merasa tenang", b: "Kadang merasa tenang", c: "Selalu merasa tenang" },
+        3: { a: "Jarang menghindari", b: "Kadang menghindari", c: "Selalu berusaha menghindari" },
+        4: { a: "Sulit bekerja sama", b: "Kadang mudah bekerja sama", c: "Sangat mudah bekerja sama" },
+        5: { a: "Tidak pernah membantu", b: "Kadang membantu", c: "Selalu siap membantu" },
+        6: { a: "Jarang menghargai", b: "Kadang menghargai", c: "Selalu menghargai" },
+        7: { a: "Sulit mengendalikan diri", b: "Kadang bisa mengendalikan diri", c: "Selalu tenang dalam menghadapi masalah" },
+        8: { a: "Sering marah", b: "Kadang marah", c: "Jarang marah" },
+        9: { a: "Jarang berpikir positif", b: "Kadang berpikir positif", c: "Selalu berpikir positif" },
+        10: { a: "Tidak tertarik belajar hal baru", b: "Kadang tertarik", c: "Sangat suka belajar hal baru" },
+        11: { a: "Belum mampu", b: "Cukup mampu", c: "Sangat mampu" },
+        12: { a: "Jarang menggunakan logika", b: "Kadang menggunakan logika", c: "Selalu berpikir logis" },
+        13: { a: "Jarang meminta maaf", b: "Kadang meminta maaf", c: "Selalu meminta maaf dengan tulus" },
+        14: { a: "Kadang tidak jujur", b: "Sering jujur tapi masih takut", c: "Selalu jujur" },
+        15: { a: "Jarang menghormati", b: "Kadang menghormati", c: "Selalu menghormati dan menghargai" },
+        16: { a: "Jarang berusaha", b: "Berusaha kadang-kadang", c: "Selalu berusaha maksimal" },
+        17: { a: "Belum punya tujuan", b: "Ada tujuan tapi belum jelas", c: "Tujuan belajar sangat jelas" },
+        18: { a: "Mudah menyerah", b: "Kadang bertahan", c: "Selalu berusaha bangkit" },
+        19: { a: "Sering berbicara seenaknya", b: "Kadang menjaga sopan santun", c: "Selalu berbicara sopan dan santun" },
+        20: { a: "Jarang bersyukur", b: "Kadang bersyukur", c: "Selalu bersyukur" },
+        21: { a: "Sulit memaafkan", b: "Kadang memaafkan", c: "Mudah memaafkan" },
+        22: { a: "Tidak berani menegur", b: "Kadang berani", c: "Selalu berani menegur dengan sopan" },
+        23: { a: "Belum punya cita-cita", b: "Sudah punya tapi belum jelas", c: "Punya cita-cita jelas dan kuat" },
+        24: { a: "Jarang mencari solusi", b: "Kadang mencari solusi", c: "Selalu mencari solusi secara mandiri" }
+    };
+    
+    const options = optionTexts[questionNumber] || { a: "Opsi A", b: "Opsi B", c: "Opsi C" };
+    
+    document.getElementById('option-a-text').textContent = options.a;
+    document.getElementById('option-b-text').textContent = options.b;
+    document.getElementById('option-c-text').textContent = options.c;
+}
+
+// Handle quick action button clicks
+window.handleQuickAction = async function(action) {
+    // Handle "Tidak" - redirect to beranda/modules
+    if (action === 'tidak') {
+        if (confirm('Yakin ingin kembali? Progress akan tersimpan.')) {
+            window.location.href = '{{ url_for("modules") }}';
+        }
+        return;
+    }
+    
+    // Disable all quick buttons
+    const allButtons = document.querySelectorAll('#quick-buttons button');
+    allButtons.forEach(btn => btn.disabled = true);
+    
+    // Send the action as a message
+    await sendMessageAction(action);
+    
+    // Hide buttons after sending
+    setTimeout(() => {
+        allButtons.forEach(btn => btn.disabled = false);
+    }, 1000);
+};
+
+// Send message via button
+async function sendMessageAction(message) {
+    if (!message) return;
+    
+    // Add user message to UI
+    addMessageToUI('user', message.toUpperCase());
+    
+    // Show typing indicator
+    typingIndicator.classList.remove('hidden');
+    scrollToBottom();
+    
+    // Hide quick buttons
+    quickButtons.classList.add('hidden');
+    
+    try {
+        const response = await fetch('/api/chat/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                session_id: sessionId,
+                message: message
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Hide typing indicator
+        typingIndicator.classList.add('hidden');
+        
+        if (response.ok) {
+            // Add assistant message to UI
+            addMessageToUI('assistant', data.response, data.timestamp);
+            // Show appropriate buttons for next interaction
+            setTimeout(showAppropriateButtons, 500);
+        } else {
+            alert('Terjadi kesalahan. Coba lagi ya!');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        typingIndicator.classList.add('hidden');
+        alert('Koneksi bermasalah. Coba lagi ya!');
+    }
+}
+
+// Initial scroll and button check
+scrollToBottom();
+setTimeout(showAppropriateButtons, 500);
+
+// Send message
+chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const message = messageInput.value.trim();
+    if (!message) return;
+    
+    // Disable input
+    messageInput.disabled = true;
+    sendBtn.disabled = true;
+    
+    // Add user message to UI
+    addMessageToUI('user', message);
+    messageInput.value = '';
+    
+    // Hide quick buttons when user types
+    quickButtons.classList.add('hidden');
+    
+    // Show typing indicator
+    typingIndicator.classList.remove('hidden');
+    scrollToBottom();
+    
+    try {
+        const response = await fetch('/api/chat/send', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                session_id: sessionId,
+                message: message
+            })
+        });
+        
+        const data = await response.json();
+        
+        // Hide typing indicator
+        typingIndicator.classList.add('hidden');
+        
+        if (response.ok) {
+            // Add assistant message to UI
+            addMessageToUI('assistant', data.response, data.timestamp);
+            // Show appropriate buttons for next interaction
+            setTimeout(showAppropriateButtons, 500);
+        } else {
+            alert('Terjadi kesalahan. Coba lagi ya!');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        typingIndicator.classList.add('hidden');
+        alert('Koneksi bermasalah. Coba lagi ya!');
+    } finally {
+        // Re-enable input
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.focus();
+    }
+});
+
+// Add message to UI
+function addMessageToUI(role, content, timestamp = null) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message-wrapper ${role === 'user' ? 'user-message' : 'assistant-message'}`;
+    
+    const now = new Date();
+    const timeStr = timestamp || `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    if (role === 'assistant') {
+        messageDiv.innerHTML = `
+            <div class="flex items-start space-x-3">
+                <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                    R
+                </div>
+                <div class="flex-1 bg-white rounded-2xl rounded-tl-none shadow-lg p-4 max-w-3xl">
+                    <p class="text-gray-800 whitespace-pre-wrap">${escapeHtml(content)}</p>
+                    <p class="text-xs text-gray-400 mt-2">${timeStr}</p>
+                </div>
+            </div>
+        `;
+    } else {
+        const userInitial = '{{ current_user.nama_lengkap[0].upper() }}';
+        messageDiv.innerHTML = `
+            <div class="flex items-start space-x-3 justify-end">
+                <div class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-2xl rounded-tr-none shadow-lg p-4 max-w-2xl">
+                    <p class="whitespace-pre-wrap">${escapeHtml(content)}</p>
+                    <p class="text-xs text-purple-100 mt-2 text-right">${timeStr}</p>
+                </div>
+                <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg">
+                    ${userInitial}
+                </div>
+            </div>
+        `;
+    }
+    
+    messagesContainer.insertBefore(messageDiv, typingIndicator);
+    scrollToBottom();
+}
+
+// Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Complete button
+completeBtn.addEventListener('click', () => {
+    completeModal.classList.remove('hidden');
+    completeModal.querySelector('.transform').classList.add('scale-100');
+});
+
+cancelComplete.addEventListener('click', () => {
+    completeModal.classList.add('hidden');
+    completeModal.querySelector('.transform').classList.remove('scale-100');
+});
+
+confirmComplete.addEventListener('click', async () => {
+    confirmComplete.disabled = true;
+    confirmComplete.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menganalisis...';
+    
+    try {
+        const response = await fetch(`/api/chat/complete/${sessionId}`, {
+            method: 'POST'
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok && data.success) {
+            window.location.href = data.redirect;
+        } else {
+            alert('Terjadi kesalahan saat menganalisis. Coba lagi ya!');
+            confirmComplete.disabled = false;
+            confirmComplete.innerHTML = 'Ya, Selesai!';
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Koneksi bermasalah. Coba lagi ya!');
+        confirmComplete.disabled = false;
+        confirmComplete.innerHTML = 'Ya, Selesai!';
+    }
+});
+
+// Focus input on load
+messageInput.focus();
+</script>
+{% endblock %}
+

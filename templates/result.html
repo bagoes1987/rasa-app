@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Hasil {{ module.name }} - RASA{% endblock %}
+
+{% block content %}
+<div class="py-8">
+    <!-- Header -->
+    <div class="mb-8">
+        <a href="{{ url_for('dashboard') }}" class="text-purple-600 hover:text-purple-700 font-medium mb-4 inline-block">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali ke Dashboard
+        </a>
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+            {{ module.emoji }} {{ module.name }}
+        </h1>
+        <p class="text-gray-600">
+            Hasil analisis pada {{ date.strftime('%d %B %Y, %H:%M WIB') }}
+        </p>
+    </div>
+    
+    <!-- Results Container -->
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white/70 backdrop-blur-md rounded-2xl shadow-xl p-8">
+            
+            <!-- Module-specific results -->
+            {% if module_type == 'jati_diri' %}
+                {% include 'results/jati_diri.html' %}
+            {% elif module_type == 'eq' %}
+                {% include 'results/eq.html' %}
+            {% elif module_type == 'gaya_belajar' %}
+                {% include 'results/gaya_belajar.html' %}
+            {% elif module_type == 'jurusan_sma' %}
+                {% include 'results/jurusan_sma.html' %}
+            {% elif module_type == 'prodi_kuliah' %}
+                {% include 'results/prodi_kuliah.html' %}
+            {% endif %}
+            
+        </div>
+        
+        <!-- Actions -->
+        <div class="mt-8 flex flex-col sm:flex-row gap-4">
+            <a href="{{ url_for('chat', module_type=module_type) }}" 
+               class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg hover:shadow-xl transition text-center font-medium">
+                <i class="fas fa-redo mr-2"></i>Ulangi Analisis
+            </a>
+            <a href="{{ url_for('modules') }}" 
+               class="flex-1 bg-white text-purple-600 border-2 border-purple-600 px-6 py-3 rounded-lg hover:bg-purple-50 transition text-center font-medium">
+                <i class="fas fa-th-large mr-2"></i>Lihat Modul Lain
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

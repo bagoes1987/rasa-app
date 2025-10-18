@@ -1,0 +1,145 @@
+<!-- Program Studi Kuliah Results -->
+<div class="space-y-6">
+    <!-- Ringkasan Holistik -->
+    {% if 'ringkasan_holistik' in result_data %}
+    <div class="bg-gradient-to-r from-purple-100 via-blue-100 to-pink-100 rounded-xl p-6 border-l-4 border-purple-600">
+        <h3 class="text-xl font-bold text-gray-800 mb-3">
+            <i class="fas fa-sparkles text-purple-600 mr-2"></i>
+            Ringkasan Holistik
+        </h3>
+        <p class="text-gray-700 leading-relaxed">
+            {{ result_data.ringkasan_holistik }}
+        </p>
+    </div>
+    {% endif %}
+    
+    <!-- Rekomendasi Program Studi -->
+    {% if 'rekomendasi' in result_data %}
+    <div class="space-y-6">
+        {% for prodi in result_data.rekomendasi %}
+        <div class="bg-white rounded-xl shadow-xl p-6 border-2 {% if loop.index == 1 %}border-purple-500{% elif loop.index == 2 %}border-blue-500{% else %}border-pink-500{% endif %}">
+            <!-- Header -->
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center">
+                    <span class="text-3xl mr-3">
+                        {% if loop.index == 1 %}🥇{% elif loop.index == 2 %}🥈{% else %}🥉{% endif %}
+                    </span>
+                    <div>
+                        <h3 class="text-2xl font-bold text-gray-800">
+                            {{ prodi.get('program_studi', 'N/A') }}
+                        </h3>
+                        <p class="text-sm text-gray-600">Rekomendasi #{{ loop.index }}</p>
+                    </div>
+                </div>
+                <span class="bg-gradient-to-r {% if loop.index == 1 %}from-purple-600 to-blue-600{% elif loop.index == 2 %}from-blue-600 to-cyan-600{% else %}from-pink-600 to-purple-600{% endif %} text-white px-4 py-2 rounded-full font-bold text-lg">
+                    {{ prodi.get('kesesuaian', 0) }}%
+                </span>
+            </div>
+            
+            <!-- Alasan -->
+            <div class="mb-4">
+                <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                    <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                    Kenapa Cocok?
+                </h4>
+                <ul class="space-y-2 bg-green-50 rounded-lg p-4">
+                    {% for alasan in prodi.get('alasan', []) %}
+                    <li class="flex items-start">
+                        <span class="text-green-600 mr-2">✓</span>
+                        <span class="text-gray-700">{{ alasan }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <!-- Prospek Karir -->
+            <div class="mb-4">
+                <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+                    <i class="fas fa-briefcase text-blue-600 mr-2"></i>
+                    Prospek Karir
+                </h4>
+                <ul class="space-y-2 bg-blue-50 rounded-lg p-4">
+                    {% for karir in prodi.get('prospek_karir', []) %}
+                    <li class="flex items-start">
+                        <span class="text-blue-600 mr-2">💼</span>
+                        <span class="text-gray-700">{{ karir }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="grid md:grid-cols-2 gap-4">
+                <!-- Skill -->
+                {% if 'skill_yang_dikembangkan' in prodi %}
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2 text-sm flex items-center">
+                        <i class="fas fa-cogs text-purple-600 mr-2"></i>
+                        Skill yang Dikembangkan
+                    </h4>
+                    <div class="flex flex-wrap gap-2">
+                        {% for skill in prodi.skill_yang_dikembangkan %}
+                        <span class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">
+                            {{ skill }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Universitas -->
+                {% if 'universitas_contoh' in prodi %}
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2 text-sm flex items-center">
+                        <i class="fas fa-university text-indigo-600 mr-2"></i>
+                        Contoh Universitas
+                    </h4>
+                    <p class="text-gray-700 text-sm">
+                        {{ prodi.universitas_contoh|join(', ') }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Path Pengembangan -->
+    {% if 'path_pengembangan' in result_data %}
+    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-6 border-l-4 border-yellow-500">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-road text-yellow-600 mr-2"></i>
+            Roadmap Pengembangan Karir
+        </h3>
+        <div class="space-y-3">
+            {% for path in result_data.path_pengembangan %}
+            <div class="flex items-start">
+                <span class="bg-yellow-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-3 flex-shrink-0 font-bold">
+                    {{ loop.index }}
+                </span>
+                <p class="text-gray-700 pt-1">{{ path }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Saran Persiapan -->
+    {% if 'saran_persiapan' in result_data %}
+    <div class="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-tasks text-green-600 mr-2"></i>
+            Saran Persiapan
+        </h3>
+        <ul class="space-y-2">
+            {% for saran in result_data.saran_persiapan %}
+            <li class="flex items-start">
+                <span class="text-green-600 mr-2">✓</span>
+                <span class="text-gray-700">{{ saran }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+

@@ -1,0 +1,84 @@
+<!-- Gaya Belajar Results -->
+<div class="space-y-6">
+    <div class="text-center bg-gradient-to-r from-blue-100 to-purple-100 rounded-xl p-8 border-2 border-blue-300">
+        <h3 class="text-sm text-gray-600 mb-2">Gaya Belajar Kamu</h3>
+        <p class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+            {{ result_data.get('gaya_belajar_utama', 'Tidak tersedia') }}
+        </p>
+        {% if 'gaya_belajar_sekunder' in result_data %}
+        <p class="text-gray-600">
+            dengan kecenderungan <span class="font-semibold">{{ result_data.gaya_belajar_sekunder }}</span>
+        </p>
+        {% endif %}
+    </div>
+    
+    <!-- Persentase -->
+    {% if 'persentase' in result_data %}
+    <div class="bg-white rounded-xl p-6 border-2 border-blue-200">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-chart-pie text-blue-600 mr-2"></i>
+            Distribusi Gaya Belajar
+        </h3>
+        <div class="space-y-4">
+            {% for gaya, persen in result_data.persentase.items() %}
+            <div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-gray-700 font-medium">{{ gaya.replace('_', ' ').title() }}</span>
+                    <span class="text-blue-600 font-bold">{{ persen }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div class="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all" 
+                         style="width: {{ persen }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Ringkasan -->
+    <div class="bg-purple-50 rounded-xl p-6 border-l-4 border-purple-500">
+        <h3 class="text-lg font-bold text-gray-800 mb-3">
+            <i class="fas fa-info-circle text-purple-600 mr-2"></i>
+            Penjelasan
+        </h3>
+        <p class="text-gray-700 leading-relaxed">
+            {{ result_data.get('ringkasan', 'Tidak tersedia') }}
+        </p>
+    </div>
+    
+    <!-- Tips Belajar -->
+    <div class="bg-green-50 rounded-xl p-6 border-l-4 border-green-500">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-graduation-cap text-green-600 mr-2"></i>
+            Tips Belajar Efektif
+        </h3>
+        <ul class="space-y-3">
+            {% for tip in result_data.get('tips_belajar', []) %}
+            <li class="flex items-start">
+                <span class="text-green-600 mr-2 text-xl">✓</span>
+                <span class="text-gray-700">{{ tip }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    
+    <!-- Rekomendasi Tools -->
+    {% if 'rekomendasi_tools' in result_data %}
+    <div class="bg-blue-50 rounded-xl p-6 border-l-4 border-blue-500">
+        <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-tools text-blue-600 mr-2"></i>
+            Rekomendasi Tools & Metode
+        </h3>
+        <ul class="space-y-2">
+            {% for tool in result_data.rekomendasi_tools %}
+            <li class="flex items-start">
+                <span class="text-blue-600 mr-2">→</span>
+                <span class="text-gray-700">{{ tool }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+

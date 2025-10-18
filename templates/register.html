@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Daftar - RASA{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center py-4 sm:py-8 lg:py-12">
+    <div class="max-w-md w-full mx-4">
+        <div class="bg-white/70 backdrop-blur-md rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8">
+            <!-- Header -->
+            <div class="text-center mb-6 sm:mb-8">
+                <h2 class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-2">
+                    Daftar Akun RASA
+                </h2>
+                <p class="text-sm sm:text-base text-gray-600">Yuk mulai perjalanan eksplorasi diri! 🚀</p>
+            </div>
+            
+            <!-- Form -->
+            <form method="POST" action="{{ url_for('register') }}" class="space-y-4 sm:space-y-6">
+                <div>
+                    <label for="nama_lengkap" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2 text-purple-600"></i>Nama Lengkap
+                    </label>
+                    <input type="text" id="nama_lengkap" name="nama_lengkap" required
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm sm:text-base"
+                           placeholder="Masukkan nama lengkap">
+                </div>
+                
+                <div>
+                    <label for="nis" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-id-card mr-2 text-purple-600"></i>NIS (Nomor Induk Siswa)
+                    </label>
+                    <input type="text" id="nis" name="nis" required
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm sm:text-base"
+                           placeholder="Masukkan NIS">
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-envelope mr-2 text-purple-600"></i>Email (Username)
+                    </label>
+                    <input type="email" id="email" name="email" required
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm sm:text-base"
+                           placeholder="contoh@email.com">
+                </div>
+                
+                <div>
+                    <label for="tempat_lahir" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-map-marker-alt mr-2 text-purple-600"></i>Tempat Lahir
+                    </label>
+                    <input type="text" id="tempat_lahir" name="tempat_lahir" required
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm sm:text-base"
+                           placeholder="Masukkan tempat lahir">
+                </div>
+                
+                <div>
+                    <label for="tanggal_lahir" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-calendar mr-2 text-purple-600"></i>Tanggal Lahir
+                    </label>
+                    <input type="date" id="tanggal_lahir" name="tanggal_lahir" required
+                           class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm sm:text-base">
+                </div>
+                
+                <div>
+                    <label for="kelas" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-school mr-2 text-purple-600"></i>Kelas
+                    </label>
+                    <select id="kelas" name="kelas" required
+                            class="w-full px-3 sm:px-4 py-2 sm:py-3 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm sm:text-base">
+                        <option value="">Pilih kelas</option>
+                        <option value="X">X (Sepuluh)</option>
+                        <option value="XI">XI (Sebelas)</option>
+                        <option value="XII">XII (Dua Belas)</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2 text-purple-600"></i>Password
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="password" name="password" required minlength="6"
+                               class="w-full px-3 sm:px-4 py-2 sm:py-3 pr-10 sm:pr-12 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition text-sm sm:text-base"
+                               placeholder="Minimal 6 karakter">
+                        <button type="button" onclick="togglePassword('password')" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye" id="password-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div>
+                    <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2 text-purple-600"></i>Konfirmasi Password
+                    </label>
+                    <div class="relative">
+                        <input type="password" id="confirm_password" name="confirm_password" required minlength="6"
+                               class="w-full px-4 py-3 pr-12 rounded-lg border border-gray-300 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition"
+                               placeholder="Ulangi password">
+                        <button type="button" onclick="togglePassword('confirm_password')" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                            <i class="fas fa-eye" id="confirm_password-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <button type="submit" 
+                        class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white font-bold py-2 sm:py-3 rounded-lg hover:shadow-xl transform hover:scale-105 transition-all text-sm sm:text-base">
+                    <i class="fas fa-user-plus mr-2"></i>Daftar Sekarang
+                </button>
+            </form>
+            
+            <!-- Footer -->
+            <div class="mt-4 sm:mt-6 text-center">
+                <p class="text-sm sm:text-base text-gray-600">
+                    Sudah punya akun? 
+                    <a href="{{ url_for('login') }}" class="text-purple-600 font-semibold hover:text-purple-700">
+                        Login di sini
+                    </a>
+                </p>
+            </div>
+        </div>
+        
+        <div class="text-center mt-4 sm:mt-6">
+            <a href="{{ url_for('index') }}" class="text-sm sm:text-base text-gray-600 hover:text-purple-600 transition">
+                <i class="fas fa-arrow-left mr-2"></i>Kembali ke beranda
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const eyeIcon = document.getElementById(fieldId + '-eye');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        eyeIcon.classList.remove('fa-eye');
+        eyeIcon.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        eyeIcon.classList.remove('fa-eye-slash');
+        eyeIcon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock %}
+

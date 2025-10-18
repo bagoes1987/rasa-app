@@ -1,0 +1,412 @@
+{% extends "base.html" %}
+
+{% block title %}{{ student.nama_lengkap }} - Detail Siswa{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <div class="h-16 w-16 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
+                    <span class="text-white font-bold text-2xl">{{ student.nama_lengkap[0] }}</span>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ student.nama_lengkap }}</h1>
+                    <p class="text-gray-600">NIS: {{ student.nis }} | Kelas: {{ student.kelas }}</p>
+                    <p class="text-sm text-gray-500">Bergabung: {{ student.created_at.strftime('%d %B %Y') }}</p>
+                </div>
+            </div>
+            <div class="flex space-x-3">
+                <a href="{{ url_for('admin_students') }}" class="btn-secondary px-4 py-2 bg-white text-purple-600 font-medium rounded-lg border-2 border-purple-600 hover:bg-purple-50 transition-all">
+                    <i class="fas fa-arrow-left mr-2"></i>Kembali
+                </a>
+                <button onclick="confirmDeleteStudent({{ student.id }}, '{{ student.nama_lengkap }}', '{{ student.nis }}')" 
+                        class="px-4 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition-all">
+                    <i class="fas fa-trash mr-2"></i>Hapus Siswa
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Information -->
+    <div class="bg-gradient-to-r from-purple-500 to-blue-500 rounded-2xl shadow-xl p-6 text-white">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold flex items-center">
+                <i class="fas fa-key mr-2"></i>
+                Informasi Login
+            </h2>
+            <div class="text-sm bg-white/20 px-3 py-1 rounded-full">
+                <i class="fas fa-lock mr-1"></i>Rahasia
+            </div>
+        </div>
+        <div class="grid grid-cols-1 gap-4">
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-sm text-white/70 mb-1">Email (Username)</p>
+                <div class="flex items-center justify-between">
+                    <p class="text-lg font-mono font-bold">{{ student.email }}</p>
+                    <button onclick="copyToClipboard('{{ student.email }}')" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition">
+                        <i class="fas fa-copy mr-1"></i>Copy
+                    </button>
+                </div>
+            </div>
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-sm text-white/70 mb-1">NIS (Nomor Induk Siswa)</p>
+                <div class="flex items-center justify-between">
+                    <p class="text-lg font-mono font-bold">{{ student.nis }}</p>
+                    <button onclick="copyToClipboard('{{ student.nis }}')" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition">
+                        <i class="fas fa-copy mr-1"></i>Copy
+                    </button>
+                </div>
+            </div>
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-sm text-white/70 mb-1">Password Siswa</p>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <p class="text-lg font-mono font-bold mr-3" id="password-display">••••••••</p>
+                        <button onclick="togglePasswordVisibility()" class="bg-white/20 hover:bg-white/30 px-2 py-1 rounded text-sm transition" id="toggle-btn">
+                            <i class="fas fa-eye mr-1"></i>Lihat
+                        </button>
+                    </div>
+                    <button onclick="copyToClipboard('{{ student.password_plain }}')" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded text-sm transition">
+                        <i class="fas fa-copy mr-1"></i>Copy
+                    </button>
+                </div>
+                <p class="text-xs text-white/60 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Password asli yang diinput saat pendaftaran
+                </p>
+            </div>
+        </div>
+        
+        <div class="mt-4 bg-white/10 rounded-lg p-4">
+            <p class="text-sm font-bold mb-2">
+                <i class="fas fa-shield-alt mr-2"></i>Keamanan Password
+            </p>
+            <ul class="text-xs text-white/80 space-y-1">
+                <li><i class="fas fa-check text-green-300 mr-2"></i>Password di-hash dengan algoritma bcrypt</li>
+                <li><i class="fas fa-check text-green-300 mr-2"></i>Password asli tidak tersimpan di database</li>
+                <li><i class="fas fa-check text-green-300 mr-2"></i>Hanya siswa yang tahu password mereka</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Personal Information -->
+    <div class="bg-gradient-to-r from-green-500 to-teal-500 rounded-2xl shadow-xl p-6 text-white">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-bold flex items-center">
+                <i class="fas fa-user mr-2"></i>
+                Informasi Personal
+            </h2>
+            <div class="text-sm bg-white/20 px-3 py-1 rounded-full">
+                <i class="fas fa-id-card mr-1"></i>Data Siswa
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-sm text-white/70 mb-1">Nama Lengkap</p>
+                <p class="text-lg font-bold">{{ student.nama_lengkap }}</p>
+            </div>
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-sm text-white/70 mb-1">Kelas</p>
+                <p class="text-lg font-bold">Kelas {{ student.kelas }}</p>
+            </div>
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-sm text-white/70 mb-1">Tempat Lahir</p>
+                <p class="text-lg font-bold">{{ student.tempat_lahir }}</p>
+            </div>
+            <div class="bg-white/10 rounded-lg p-4">
+                <p class="text-sm text-white/70 mb-1">Tanggal Lahir</p>
+                <p class="text-lg font-bold">{{ student.tanggal_lahir.strftime('%d %B %Y') }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-blue-100">
+                    <i class="fas fa-comments text-2xl text-blue-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Total Sesi</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ sessions|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-green-100">
+                    <i class="fas fa-check-circle text-2xl text-green-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Sesi Selesai</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ sessions|selectattr('is_completed')|list|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-purple-100">
+                    <i class="fas fa-chart-bar text-2xl text-purple-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Hasil Analisis</p>
+                    <p class="text-2xl font-bold text-gray-900">{{ results|length }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+            <div class="flex items-center">
+                <div class="p-3 rounded-full bg-orange-100">
+                    <i class="fas fa-percentage text-2xl text-orange-600"></i>
+                </div>
+                <div class="ml-4">
+                    <p class="text-sm font-medium text-gray-600">Tingkat Penyelesaian</p>
+                    <p class="text-2xl font-bold text-gray-900">
+                        {% if sessions|length > 0 %}
+                        {{ ((sessions|selectattr('is_completed')|list|length / sessions|length) * 100)|round(1) }}%
+                        {% else %}
+                        0%
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Sessions -->
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Riwayat Sesi Chat</h2>
+        {% if sessions %}
+        <div class="space-y-4">
+            {% for session in sessions %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="p-2 rounded-full bg-purple-100">
+                            <i class="fas fa-comment text-purple-600"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-medium text-gray-900">{{ session.module_type.replace('_', ' ').title() }}</h3>
+                            <p class="text-sm text-gray-600">
+                                Dimulai: {{ session.started_at.strftime('%d/%m/%Y %H:%M') }}
+                                {% if session.completed_at %}
+                                | Selesai: {{ session.completed_at.strftime('%d/%m/%Y %H:%M') }}
+                                {% endif %}
+                            </p>
+                            <p class="text-sm text-gray-500">
+                                {{ session.messages|length }} pesan
+                            </p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        {% if session.is_completed %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <i class="fas fa-check-circle mr-1"></i>
+                            Selesai
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            <i class="fas fa-clock mr-1"></i>
+                            Berlangsung
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <i class="fas fa-comments text-4xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500">Belum ada sesi chat</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Analysis Results -->
+    <div class="bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-6">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Hasil Analisis</h2>
+        {% if results %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for module_type, result in results.items() %}
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-medium text-gray-900">{{ module_type.replace('_', ' ').title() }}</h3>
+                    <span class="text-xs text-gray-500">{{ result.date.strftime('%d/%m/%Y') }}</span>
+                </div>
+                
+                {% if result.data %}
+                <div class="space-y-2">
+                    {% if result.data.get('summary') %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Ringkasan:</p>
+                        <p class="text-sm text-gray-600">{{ result.data.summary[:100] }}{% if result.data.summary|length > 100 %}...{% endif %}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if result.data.get('score') %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Skor:</p>
+                        <div class="flex items-center">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-600 h-2 rounded-full" style="width: {{ result.data.score }}%"></div>
+                            </div>
+                            <span class="ml-2 text-sm text-gray-600">{{ result.data.score }}%</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if result.data.get('recommendations') %}
+                    <div>
+                        <p class="text-sm font-medium text-gray-700">Rekomendasi:</p>
+                        <p class="text-sm text-gray-600">{{ result.data.recommendations|length }} item</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-500">Data tidak tersedia</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-8">
+            <i class="fas fa-chart-bar text-4xl text-gray-300 mb-4"></i>
+            <p class="text-gray-500">Belum ada hasil analisis</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full hidden z-50">
+    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div class="mt-3 text-center">
+            <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
+                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mt-4">Konfirmasi Hapus Siswa</h3>
+            <div class="mt-2 px-7 py-3">
+                <p class="text-sm text-gray-500">
+                    Apakah Anda yakin ingin menghapus siswa:
+                </p>
+                <p class="text-lg font-semibold text-gray-900 mt-2" id="studentName"></p>
+                <p class="text-sm text-gray-500" id="studentNis"></p>
+                <div class="bg-red-50 border border-red-200 rounded-md p-3 mt-4">
+                    <p class="text-sm text-red-800 font-medium">
+                        <i class="fas fa-warning mr-2"></i>
+                        PERINGATAN: Tindakan ini akan menghapus:
+                    </p>
+                    <ul class="text-xs text-red-700 mt-2 space-y-1">
+                        <li>• Data siswa</li>
+                        <li>• Semua sesi chat</li>
+                        <li>• Semua hasil analisis</li>
+                        <li>• Semua pesan chat</li>
+                    </ul>
+                    <p class="text-xs text-red-800 font-bold mt-2">
+                        Tindakan ini TIDAK DAPAT DIBATALKAN!
+                    </p>
+                </div>
+            </div>
+            <div class="items-center px-4 py-3">
+                <button id="confirmDelete" class="px-4 py-2 bg-red-600 text-white text-base font-medium rounded-md w-24 mr-2 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-300">
+                    Ya, Hapus
+                </button>
+                <button onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-300 text-gray-800 text-base font-medium rounded-md w-24 hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let studentToDelete = null;
+
+function confirmDeleteStudent(studentId, studentName, studentNis) {
+    studentToDelete = studentId;
+    document.getElementById('studentName').textContent = studentName;
+    document.getElementById('studentNis').textContent = 'NIS: ' + studentNis;
+    document.getElementById('deleteModal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+    studentToDelete = null;
+}
+
+// Handle confirm delete
+document.getElementById('confirmDelete').addEventListener('click', function() {
+    if (studentToDelete) {
+        // Create form and submit
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/student/${studentToDelete}/delete`;
+        
+        // Add CSRF token if needed
+        const csrfToken = document.querySelector('meta[name="csrf-token"]');
+        if (csrfToken) {
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrf_token';
+            csrfInput.value = csrfToken.getAttribute('content');
+            form.appendChild(csrfInput);
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+});
+
+// Close modal when clicking outside
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeleteModal();
+    }
+});
+
+</script>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        // Show success message
+        const btn = event.target.closest('button');
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check mr-1"></i>Copied!';
+        btn.classList.add('bg-green-500/30');
+        
+        setTimeout(function() {
+            btn.innerHTML = originalHTML;
+            btn.classList.remove('bg-green-500/30');
+        }, 2000);
+    }, function(err) {
+        console.error('Could not copy text: ', err);
+    });
+}
+
+function togglePasswordVisibility() {
+    const passwordDisplay = document.getElementById('password-display');
+    const toggleBtn = document.getElementById('toggle-btn');
+    const studentPassword = '{{ student.password_plain }}';
+    
+    if (passwordDisplay.textContent === '••••••••') {
+        // Show password
+        passwordDisplay.textContent = studentPassword;
+        toggleBtn.innerHTML = '<i class="fas fa-eye-slash mr-1"></i>Sembunyikan';
+        toggleBtn.classList.add('bg-red-500/30');
+    } else {
+        // Hide password
+        passwordDisplay.textContent = '••••••••';
+        toggleBtn.innerHTML = '<i class="fas fa-eye mr-1"></i>Lihat';
+        toggleBtn.classList.remove('bg-red-500/30');
+    }
+}
+</script>
+{% endblock %}
