@@ -41,6 +41,19 @@ login_manager.login_message = 'Silakan login terlebih dahulu!'
 # Survey system (no external API needed)
 survey_analyzer = SurveyAnalyzer()
 
+def admin_required(f):
+    """Decorator to require admin access"""
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            flash('Silakan login terlebih dahulu!', 'error')
+            return redirect(url_for('login'))
+        if not isinstance(current_user, Admin):
+            flash('Akses ditolak! Halaman ini hanya untuk admin.', 'error')
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    decorated_function.__name__ = f.__name__
+    return decorated_function
+
 def get_all_surveys():
     """Get all available surveys from survey_questions.py"""
     from survey_questions import SURVEY_QUESTIONS
@@ -621,11 +634,9 @@ def admin_logout():
 
 @app.route('/admin/dashboard')
 @login_required
+@admin_required
 def admin_dashboard():
     """Admin dashboard with statistics"""
-    if not isinstance(current_user, Admin):
-        flash('Akses ditolak!', 'error')
-        return redirect(url_for('index'))
     
     # Get statistics
     total_students = User.query.count()
@@ -666,11 +677,9 @@ def admin_dashboard():
 
 @app.route('/admin/students')
 @login_required
+@admin_required
 def admin_students():
     """View all students and their activities"""
-    if not isinstance(current_user, Admin):
-        flash('Akses ditolak!', 'error')
-        return redirect(url_for('index'))
     
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 20, type=int)
